@@ -92,8 +92,9 @@ table {
   width:100%;
   border-collapse:collapse;
   margin-top:20px;
-  display:block;
-  overflow-x:auto;
+  display:block;          /* permite scroll horizontal */
+  overflow-x:auto;        /* scroll apenas se necessário */
+  word-wrap: break-word;  /* ajuda com textos grandes */
 }
 
 th, td {
@@ -247,4 +248,5 @@ carregarDados();
 
 </body>
 </html>
+
 
