@@ -92,9 +92,8 @@ table {
   width:100%;
   border-collapse:collapse;
   margin-top:20px;
-  display:block;          /* permite scroll horizontal */
-  overflow-x:auto;        /* scroll apenas se necessário */
-  word-wrap: break-word;  /* ajuda com textos grandes */
+  display:block;
+  overflow-x:auto;
 }
 
 th, td {
@@ -102,8 +101,7 @@ th, td {
   padding:12px;
   text-align:center;
   font-size:18px;
-  white-space: normal;   /* permite quebrar linhas automaticamente */
-  word-break: break-word; /* quebra palavras grandes */
+  white-space:nowrap;
 }
 
 th {
@@ -248,5 +246,3 @@ carregarDados();
 
 </body>
 </html>
-
-
