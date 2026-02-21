@@ -16,7 +16,6 @@ if ('serviceWorker' in navigator) {
 </script>
 
 <style>
-/* ================= MOBILE-FIRST ================= */
 body {
   font-family:'Segoe UI', sans-serif;
   margin:0;
@@ -32,13 +31,11 @@ header {
   font-weight:bold;
 }
 
-.container {
-  padding:15px;
-}
+.container { padding:15px; }
 
 .cards {
   display:flex;
-  flex-direction:column; /* mobile-first: cards em coluna */
+  flex-direction:column;
   gap:15px;
   margin-bottom:20px;
 }
@@ -50,16 +47,8 @@ header {
   text-align:center;
 }
 
-.card h3 {
-  margin:10px 0;
-  font-size:18px;
-  color:#94a3b8;
-}
-
-.card p {
-  font-size:26px;
-  font-weight:bold;
-}
+.card h3 { margin:10px 0; font-size:18px; color:#94a3b8; }
+.card p { font-size:26px; font-weight:bold; }
 
 button {
   padding:14px 20px;
@@ -89,12 +78,13 @@ button {
 }
 
 table {
-  width:100%;
+  width:auto; /* largura automática conforme conteúdo */
+  max-width:100%;
   border-collapse:collapse;
   margin-top:20px;
-  display:block;          /* permite scroll horizontal em telas pequenas */
-  overflow-x:auto;        /* scroll só se necessário */
-  word-wrap: break-word;  /* quebra palavras longas */
+  display:block;
+  overflow-x:auto;
+  word-wrap: break-word;
 }
 
 th, td {
@@ -102,22 +92,32 @@ th, td {
   padding:12px;
   text-align:center;
   font-size:18px;
-  white-space: normal;   /* permite quebra de linha automática */
+  white-space:normal;
   word-break: break-word;
 }
 
-th {
-  background:#1e293b;
-}
+th { background:#1e293b; }
 
-input {
+textarea {
   width:100%;
-  padding:10px;
+  font-size:18px;
   background:#0f172a;
   color:white;
   border:1px solid #334155;
+  border-radius:4px;
+  resize:none;
+  overflow:hidden;
   box-sizing:border-box;
+}
+
+input[type="number"] {
   font-size:18px;
+  background:#0f172a;
+  color:white;
+  border:1px solid #334155;
+  border-radius:4px;
+  padding:6px;
+  box-sizing:border-box;
 }
 
 canvas {
@@ -128,7 +128,6 @@ canvas {
   height:auto !important;
 }
 
-/* ================= TABLET/DESKTOP ================= */
 @media screen and (min-width: 700px) {
   .cards { flex-direction:row; flex-wrap:wrap; }
   .card { flex:1 1 250px; min-width:200px; }
@@ -177,20 +176,47 @@ canvas {
 <script>
 let chart;
 
+// Auto-expande textarea de Ativo
+function autoExpand(field){
+  field.style.height = 'auto';
+  field.style.height = (field.scrollHeight) + 'px';
+}
+
+// Ajusta largura de input numérico conforme conteúdo
+function ajustarLarguraInput(input){
+  const tmp = document.createElement("span");
+  tmp.style.visibility = "hidden";
+  tmp.style.position = "absolute";
+  tmp.style.whiteSpace = "pre";
+  tmp.innerText = input.value || input.placeholder || "0";
+  document.body.appendChild(tmp);
+  input.style.width = (tmp.offsetWidth + 20) + "px";
+  document.body.removeChild(tmp);
+}
+
 function adicionarLinha(dados=["",0,0,0]){
   let tbody=document.querySelector("#tabela tbody");
   let row=tbody.insertRow();
-  for(let i=0;i<4;i++){
-    let cell=row.insertCell();
-    cell.innerHTML=`<input oninput="calcular()" value="${dados[i]}">`;
+  
+  // Ativo - textarea
+  let cellAtivo = row.insertCell();
+  cellAtivo.innerHTML = `<textarea oninput="autoExpand(this); calcular();">${dados[0]}</textarea>`;
+  
+  // Preço, Qtd, DY % - inputs numéricos
+  for(let i=1;i<4;i++){
+    let cell = row.insertCell();
+    cell.innerHTML = `<input type="number" oninput="ajustarLarguraInput(this); calcular();" value="${dados[i]}">`;
+    ajustarLarguraInput(cell.children[0]); // ajuste inicial
   }
-  row.insertCell().innerText="0";
-  row.insertCell().innerText="0";
+  
+  row.insertCell().innerText="0"; // Total
+  row.insertCell().innerText="0"; // Renda Mês
 }
 
 function calcular(){
   let rows=document.querySelectorAll("#tabela tbody tr");
   let totalInvestido=0,rendaTotal=0,dadosGrafico=[],labels=[];
+  
   rows.forEach((row,index)=>{
     let preco=parseFloat(row.cells[1].children[0].value)||0;
     let qtd=parseFloat(row.cells[2].children[0].value)||0;
@@ -204,12 +230,15 @@ function calcular(){
     dadosGrafico.push(renda.toFixed(2));
     labels.push("Ativo "+(index+1));
   });
+  
   document.getElementById("totalInvestido").innerText="R$ "+totalInvestido.toFixed(2);
   document.getElementById("rendaMensal").innerText="R$ "+rendaTotal.toFixed(2);
+  
   let meta=parseFloat(document.getElementById("meta").value)||0;
   let progresso=meta?(rendaTotal/meta)*100:0;
   if(progresso>100) progresso=100;
   document.getElementById("progressBar").style.width=progresso+"%";
+  
   salvarDados();
   atualizarGrafico(labels,dadosGrafico);
 }
@@ -244,6 +273,7 @@ function carregarDados(){
   ativos.forEach(a=>adicionarLinha(a));
   calcular();
 }
+
 carregarDados();
 </script>
 
