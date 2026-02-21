@@ -78,7 +78,7 @@ button {
 }
 
 table {
-  width:auto; /* largura automática conforme conteúdo */
+  width:auto;
   max-width:100%;
   border-collapse:collapse;
   margin-top:20px;
@@ -92,25 +92,12 @@ th, td {
   padding:12px;
   text-align:center;
   font-size:18px;
-  white-space:normal;
-  word-break: break-word;
+  white-space:nowrap; /* nowrap para auto-largura */
 }
 
 th { background:#1e293b; }
 
-textarea {
-  width:100%;
-  font-size:18px;
-  background:#0f172a;
-  color:white;
-  border:1px solid #334155;
-  border-radius:4px;
-  resize:none;
-  overflow:hidden;
-  box-sizing:border-box;
-}
-
-input[type="number"] {
+input {
   font-size:18px;
   background:#0f172a;
   color:white;
@@ -118,6 +105,7 @@ input[type="number"] {
   border-radius:4px;
   padding:6px;
   box-sizing:border-box;
+  min-width:50px;
 }
 
 canvas {
@@ -176,84 +164,83 @@ canvas {
 <script>
 let chart;
 
-// Auto-expande textarea de Ativo
-function autoExpand(field){
-  field.style.height = 'auto';
-  field.style.height = (field.scrollHeight) + 'px';
-}
-
-// Ajusta largura de input numérico conforme conteúdo
+// Ajusta largura do input conforme conteúdo
 function ajustarLarguraInput(input){
   const tmp = document.createElement("span");
   tmp.style.visibility = "hidden";
   tmp.style.position = "absolute";
   tmp.style.whiteSpace = "pre";
+  tmp.style.font = window.getComputedStyle(input).font;
   tmp.innerText = input.value || input.placeholder || "0";
   document.body.appendChild(tmp);
-  input.style.width = (tmp.offsetWidth + 20) + "px";
+  input.style.width = (tmp.offsetWidth + 20) + "px"; // espaço extra
   document.body.removeChild(tmp);
 }
 
+// Adiciona uma nova linha
 function adicionarLinha(dados=["",0,0,0]){
-  let tbody=document.querySelector("#tabela tbody");
-  let row=tbody.insertRow();
-  
-  // Ativo - textarea
+  let tbody = document.querySelector("#tabela tbody");
+  let row = tbody.insertRow();
+
+  // Ativo
   let cellAtivo = row.insertCell();
-  cellAtivo.innerHTML = `<textarea oninput="autoExpand(this); calcular();">${dados[0]}</textarea>`;
-  
-  // Preço, Qtd, DY % - inputs numéricos
+  cellAtivo.innerHTML = `<input type="text" oninput="ajustarLarguraInput(this); calcular();" value="${dados[0]}" placeholder="Ativo">`;
+  ajustarLarguraInput(cellAtivo.children[0]);
+
+  // Preço, Qtd, DY %
   for(let i=1;i<4;i++){
     let cell = row.insertCell();
-    cell.innerHTML = `<input type="number" oninput="ajustarLarguraInput(this); calcular();" value="${dados[i]}">`;
-    ajustarLarguraInput(cell.children[0]); // ajuste inicial
+    cell.innerHTML = `<input type="number" oninput="ajustarLarguraInput(this); calcular();" value="${dados[i]}" placeholder="0">`;
+    ajustarLarguraInput(cell.children[0]);
   }
-  
-  row.insertCell().innerText="0"; // Total
-  row.insertCell().innerText="0"; // Renda Mês
+
+  // Total e Renda Mês (calculados)
+  row.insertCell().innerText = "0";
+  row.insertCell().innerText = "0";
 }
 
+// Calcula totais, renda e gráficos
 function calcular(){
-  let rows=document.querySelectorAll("#tabela tbody tr");
-  let totalInvestido=0,rendaTotal=0,dadosGrafico=[],labels=[];
-  
+  let rows = document.querySelectorAll("#tabela tbody tr");
+  let totalInvestido = 0, rendaTotal = 0, dadosGrafico = [], labels = [];
+
   rows.forEach((row,index)=>{
-    let preco=parseFloat(row.cells[1].children[0].value)||0;
-    let qtd=parseFloat(row.cells[2].children[0].value)||0;
-    let dy=parseFloat(row.cells[3].children[0].value)||0;
-    let total=preco*qtd;
-    let renda=(total*(dy/100))/12;
-    row.cells[4].innerText=total.toFixed(2);
-    row.cells[5].innerText=renda.toFixed(2);
-    totalInvestido+=total;
-    rendaTotal+=renda;
+    let preco = parseFloat(row.cells[1].children[0].value)||0;
+    let qtd = parseFloat(row.cells[2].children[0].value)||0;
+    let dy = parseFloat(row.cells[3].children[0].value)||0;
+    let total = preco*qtd;
+    let renda = (total*(dy/100))/12;
+    row.cells[4].innerText = total.toFixed(2);
+    row.cells[5].innerText = renda.toFixed(2);
+    totalInvestido += total;
+    rendaTotal += renda;
     dadosGrafico.push(renda.toFixed(2));
     labels.push("Ativo "+(index+1));
   });
-  
-  document.getElementById("totalInvestido").innerText="R$ "+totalInvestido.toFixed(2);
-  document.getElementById("rendaMensal").innerText="R$ "+rendaTotal.toFixed(2);
-  
-  let meta=parseFloat(document.getElementById("meta").value)||0;
-  let progresso=meta?(rendaTotal/meta)*100:0;
-  if(progresso>100) progresso=100;
-  document.getElementById("progressBar").style.width=progresso+"%";
-  
+
+  document.getElementById("totalInvestido").innerText = "R$ "+totalInvestido.toFixed(2);
+  document.getElementById("rendaMensal").innerText = "R$ "+rendaTotal.toFixed(2);
+
+  let meta = parseFloat(document.getElementById("meta").value)||0;
+  let progresso = meta ? (rendaTotal/meta)*100 : 0;
+  if(progresso>100) progresso = 100;
+  document.getElementById("progressBar").style.width = progresso+"%";
+
   salvarDados();
   atualizarGrafico(labels,dadosGrafico);
 }
 
 function atualizarGrafico(labels,dados){
   if(chart) chart.destroy();
-  let ctx=document.getElementById("grafico");
-  chart=new Chart(ctx,{
+  let ctx = document.getElementById("grafico");
+  chart = new Chart(ctx,{
     type:"bar",
-    data:{labels:labels,datasets:[{label:"Renda Mensal por Ativo",data:dados,backgroundColor:"#22c55e"}]}
+    data:{labels:labels,datasets:[{label:"Renda Mensal por Ativo", data:dados, backgroundColor:"#22c55e"}]}
   });
 }
 
 function salvarDados(){
-  let dados=[];
+  let dados = [];
   document.querySelectorAll("#tabela tbody tr").forEach(row=>{
     dados.push([
       row.cells[0].children[0].value,
@@ -263,14 +250,14 @@ function salvarDados(){
     ]);
   });
   localStorage.setItem("ativos",JSON.stringify(dados));
-  localStorage.setItem("meta",document.getElementById("meta").value);
+  localStorage.setItem("meta", document.getElementById("meta").value);
 }
 
 function carregarDados(){
-  let ativos=JSON.parse(localStorage.getItem("ativos")||"[]");
-  let meta=localStorage.getItem("meta");
-  if(meta) document.getElementById("meta").value=meta;
-  ativos.forEach(a=>adicionarLinha(a));
+  let ativos = JSON.parse(localStorage.getItem("ativos")||"[]");
+  let meta = localStorage.getItem("meta");
+  if(meta) document.getElementById("meta").value = meta;
+  ativos.forEach(a => adicionarLinha(a));
   calcular();
 }
 
