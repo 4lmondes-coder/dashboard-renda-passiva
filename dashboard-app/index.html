@@ -2,14 +2,13 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Renda Passiva</title>
 
-<!-- Manifest e ícones -->
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 
-<!-- Registrar Service Worker -->
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js');
@@ -26,14 +25,14 @@ body {
 
 header {
   background:#111827;
-  padding:15px;
+  padding:20px;
   text-align:center;
-  font-size:22px;
+  font-size:24px;
   font-weight:bold;
 }
 
 .container {
-  padding:20px;
+  padding:15px;
 }
 
 .cards {
@@ -44,23 +43,50 @@ header {
 }
 
 .card {
-  flex:1 1 200px;
+  flex:1 1 250px;
   background:#1e293b;
-  padding:15px;
+  padding:20px;
   border-radius:10px;
   text-align:center;
-  min-width:150px;
+  min-width:200px;
 }
 
 .card h3 {
-  margin:5px 0;
-  font-size:14px;
+  margin:10px 0;
+  font-size:16px;
   color:#94a3b8;
 }
 
 .card p {
-  font-size:20px;
+  font-size:22px;
   font-weight:bold;
+}
+
+button {
+  padding:12px 20px;
+  margin-top:10px;
+  background:#22c55e;
+  border:none;
+  color:white;
+  cursor:pointer;
+  border-radius:6px;
+  font-size:16px;
+  width:100%;
+  box-sizing:border-box;
+}
+
+.progress {
+  background:#334155;
+  height:20px;
+  border-radius:10px;
+  margin-top:10px;
+}
+
+.progress-bar {
+  height:100%;
+  background:#22c55e;
+  width:0%;
+  border-radius:10px;
 }
 
 table {
@@ -73,9 +99,9 @@ table {
 
 th, td {
   border:1px solid #334155;
-  padding:8px;
+  padding:10px;
   text-align:center;
-  font-size:14px;
+  font-size:16px;
   white-space:nowrap;
 }
 
@@ -85,35 +111,12 @@ th {
 
 input {
   width:100%;
-  padding:5px;
+  padding:8px;
   background:#0f172a;
   color:white;
   border:1px solid #334155;
   box-sizing:border-box;
-}
-
-button {
-  padding:8px 15px;
-  margin-top:10px;
-  background:#22c55e;
-  border:none;
-  color:white;
-  cursor:pointer;
-  border-radius:5px;
-}
-
-.progress {
-  background:#334155;
-  height:15px;
-  border-radius:10px;
-  margin-top:5px;
-}
-
-.progress-bar {
-  height:100%;
-  background:#22c55e;
-  width:0%;
-  border-radius:10px;
+  font-size:16px;
 }
 
 canvas {
@@ -126,11 +129,12 @@ canvas {
 
 /* ================= RESPONSIVO ================= */
 @media screen and (max-width: 600px) {
-  header { font-size:18px; }
-  .card p { font-size:16px; }
-  th, td { font-size:12px; padding:6px; }
+  header { font-size:20px; padding:15px; }
+  .card p { font-size:20px; }
+  th, td { font-size:14px; padding:8px; }
+  input { font-size:14px; }
+  button { font-size:14px; padding:10px; }
   .cards { flex-direction:column; }
-  input { font-size:12px; }
 }
 </style>
 </head>
