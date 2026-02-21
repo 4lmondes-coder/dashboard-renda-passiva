@@ -17,21 +17,117 @@ if ('serviceWorker' in navigator) {
 </script>
 
 <style>
-body { font-family:'Segoe UI', sans-serif; margin:0; background:#0f172a; color:white;}
-header{background:#111827;padding:15px;text-align:center;font-size:22px;font-weight:bold;}
-.container{padding:20px;}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-bottom:20px;}
-.card{background:#1e293b;padding:15px;border-radius:10px;text-align:center;}
-.card h3{margin:5px 0;font-size:14px;color:#94a3b8;}
-.card p{font-size:20px;font-weight:bold;}
-table{width:100%;border-collapse:collapse;margin-top:20px;}
-th,td{border:1px solid #334155;padding:8px;text-align:center;}
-th{background:#1e293b;}
-input{width:90%;padding:5px;background:#0f172a;color:white;border:1px solid #334155;}
-button{padding:8px 15px;margin-top:10px;background:#22c55e;border:none;color:white;cursor:pointer;border-radius:5px;}
-.progress{background:#334155;height:15px;border-radius:10px;margin-top:5px;}
-.progress-bar{height:100%;background:#22c55e;width:0%;border-radius:10px;}
-canvas{background:#1e293b;border-radius:10px;padding:10px;}
+body {
+  font-family:'Segoe UI', sans-serif;
+  margin:0;
+  background:#0f172a;
+  color:white;
+}
+
+header {
+  background:#111827;
+  padding:15px;
+  text-align:center;
+  font-size:22px;
+  font-weight:bold;
+}
+
+.container {
+  padding:20px;
+}
+
+.cards {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.card {
+  background:#1e293b;
+  padding:15px;
+  border-radius:10px;
+  text-align:center;
+}
+
+.card h3 {
+  margin:5px 0;
+  font-size:14px;
+  color:#94a3b8;
+}
+
+.card p {
+  font-size:20px;
+  font-weight:bold;
+}
+
+table {
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+  word-wrap: break-word;
+}
+
+th, td {
+  border:1px solid #334155;
+  padding:8px;
+  text-align:center;
+  font-size:14px;
+}
+
+th {
+  background:#1e293b;
+}
+
+input {
+  width:90%;
+  padding:5px;
+  background:#0f172a;
+  color:white;
+  border:1px solid #334155;
+  box-sizing:border-box;
+}
+
+button {
+  padding:8px 15px;
+  margin-top:10px;
+  background:#22c55e;
+  border:none;
+  color:white;
+  cursor:pointer;
+  border-radius:5px;
+}
+
+.progress {
+  background:#334155;
+  height:15px;
+  border-radius:10px;
+  margin-top:5px;
+}
+
+.progress-bar {
+  height:100%;
+  background:#22c55e;
+  width:0%;
+  border-radius:10px;
+}
+
+canvas {
+  background:#1e293b;
+  border-radius:10px;
+  padding:10px;
+  width:100% !important;
+  height:auto !important;
+}
+
+/* ================= RESPONSIVO ================= */
+@media screen and (max-width: 600px) {
+  header { font-size:18px; }
+  .card p { font-size:16px; }
+  th, td { font-size:12px; padding:6px; }
+  input { width:100%; }
+  .cards { grid-template-columns:1fr; }
+}
 </style>
 </head>
 <body>
@@ -82,8 +178,8 @@ function adicionarLinha(dados=["",0,0,0]){
     let cell=row.insertCell();
     cell.innerHTML=`<input oninput="calcular()" value="${dados[i]}">`;
   }
-  row.insertCell().innerHTML="0";
-  row.insertCell().innerHTML="0";
+  row.insertCell().innerText="0";
+  row.insertCell().innerText="0";
 }
 
 function calcular(){
@@ -115,7 +211,10 @@ function calcular(){
 function atualizarGrafico(labels,dados){
   if(chart) chart.destroy();
   let ctx=document.getElementById("grafico");
-  chart=new Chart(ctx,{type:"bar",data:{labels:labels,datasets:[{label:"Renda Mensal por Ativo",data:dados,backgroundColor:"#22c55e"}]}});
+  chart=new Chart(ctx,{
+    type:"bar",
+    data:{labels:labels,datasets:[{label:"Renda Mensal por Ativo",data:dados,backgroundColor:"#22c55e"}]}
+  });
 }
 
 function salvarDados(){
