@@ -1,7 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Renda Passiva</title>
+
+<!-- Ícones e manifest -->
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f172a">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+
+<!-- Registrar Service Worker -->
 <script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js");
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js');
 }
 </script>
+
+<!-- Estilos -->
+<style>
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    background: #0f172a;
+    color: white;
+}
+header {
+    background: #111827;
+    padding: 15px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+}
+.container {
+    padding: 20px;
+}
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.card {
+    background: #1e293b;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+}
+.card h3 { margin: 5px 0; font-size: 14px; color: #94a3b8; }
+.card p { font-size: 20px; font-weight: bold; }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+th, td {
+    border: 1px solid #334155;
+    padding: 8px;
+    text-align: center;
+}
+th { background: #1e293b; }
+input {
+    width: 90%;
+    padding: 5px;
+    background: #0f172a;
+    color: white;
+    border: 1px solid #334155;
+}
+button {
+    padding: 8px 15px;
+    margin-top: 10px;
+    background: #22c55e;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+.progress {
+    background: #334155;
+    height: 15px;
+    border-radius: 10px;
+    margin-top: 5px;
+}
+.progress-bar {
+    height: 100%;
+    background: #22c55e;
+    width: 0%;
+    border-radius: 10px;
+}
+canvas {
+    background: #1e293b;
+    border-radius: 10px;
+    padding: 10px;
+}
+</style>
+</head>
+
+<body>
+<header>📊 Dashboard de Renda Passiva</header>
+
+<div class="container">
+<div class="cards">
+    <div class="card">
+        <h3>Total Investido</h3>
+        <p id="totalInvestido">R$ 0</p>
+    </div>
+    <div class="card">
+        <h3>Renda Mensal</h3>
+        <p id="rendaMensal">R$ 0</p>
+    </div>
+    <div class="card">
+        <h3>Meta Mensal</h3>
+        <input type="number" id="meta" placeholder="Digite sua meta" oninput="calcular()">
+        <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+    </div>
+</div>
+
+<button onclick="adicionarLinha()">+ Adicionar Ativo</button>
+
+<table id="tabela">
+<thead>
+<tr>
+<th>Ativo</th>
+<th>Preço</th>
+<th>Qtd</th>
+<th>DY %</th>
+<th>Total</th>
+<th>Renda Mês</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<h3 style="margin-top:30px;">📈 Evolução da Renda</h3>
+<canvas id="grafico"></canvas>
+</div>
+
+<!-- Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let chart;
+
+function adicionarLinha(dados = ["",0,0,0]) {
+    let tbody = document.querySelector("#tabela tbody");
+    let row = tbody.insertRow();
+    for(let i=0;i<4;i++){
+        let cell = row.insertCell();
+        cell.innerHTML = `<input oninput="calcular()" value="${dados[i]}">`;
+    }
+    row.insertCell().innerHTML = "0";
+    row.insertCell().innerHTML = "0";
+}
+
+function calcular(){
+    let rows = document.querySelectorAll("#tabela tbody tr");
+    let totalInvestido = 0;
+    let rendaTotal = 0;
+    let dadosGrafico = [];
+    let labels = [];
+
+    rows.forEach((row,index)=>{
+        let preco = parseFloat(row.cells[1].children[0].value)||0;
+        let qtd = parseFloat(row.cells[2].children[0].value)||0;
+        let dy = parseFloat(row.cells[3].children[0].value)||0;
+        let total = preco*qtd;
+        let renda = (total*(dy/100))/12;
+        row.cells[4].innerText = total.toFixed(2);
+        row.cells[5].innerText = renda.toFixed(2);
+        totalInvestido+=total;
+        rendaTotal+=renda;
+        dadosGrafico.push(renda.toFixed(2));
+        labels.push("Ativo "+(index+1));
+    });
+
+    document.getElementById("totalInvestido").innerText="R$ "+totalInvestido.toFixed(2);
+    document.getElementById("rendaMensal").innerText="R$ "+rendaTotal.toFixed(2);
+
+    let meta = parseFloat(document.getElementById("meta").value)||0;
+    let progresso = meta ? (rendaTotal/meta)*100 : 0;
+    if(progresso>100) progresso=100;
+    document.getElementById("progressBar").style.width=progresso+"%";
+
+    salvarDados();
+    atualizarGrafico(labels,dadosGrafico);
+}
+
+function atualizarGrafico(labels,dados){
+    if(chart) chart.destroy();
+    let ctx=document.getElementById("grafico");
+    chart=new Chart(ctx,{
+        type:"bar",
+        data:{
+            labels:labels,
+            datasets:[{
+                label:"Renda Mensal por Ativo",
+                data:dados,
+                backgroundColor:"#22c55e"
+            }]
+        }
+    });
+}
+
+function salvarDados(){
+    let dados=[];
+    document.querySelectorAll("#tabela tbody tr").forEach(row=>{
+        dados.push([
+            row.cells[0].children[0].value,
+            row.cells[1].children[0].value,
+            row.cells[2].children[0].value,
+            row.cells[3].children[0].value
+        ]);
+    });
+    localStorage.setItem("ativos",JSON.stringify(dados));
+    localStorage.setItem("meta",document.getElementById("meta").value);
+}
+
+function carregarDados(){
+    let ativos=JSON.parse(localStorage.getItem("ativos")||"[]");
+    let meta=localStorage.getItem("meta");
+    if(meta) document.getElementById("meta").value=meta;
+    ativos.forEach(a=>adicionarLinha(a));
+    calcular();
+}
+
+carregarDados();
+</script>
+
+</body>
+</html>
