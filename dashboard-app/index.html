@@ -16,6 +16,7 @@ if ('serviceWorker' in navigator) {
 </script>
 
 <style>
+/* ================= MOBILE-FIRST ================= */
 body {
   font-family:'Segoe UI', sans-serif;
   margin:0;
@@ -27,7 +28,7 @@ header {
   background:#111827;
   padding:20px;
   text-align:center;
-  font-size:24px;
+  font-size:28px;
   font-weight:bold;
 }
 
@@ -37,47 +38,45 @@ header {
 
 .cards {
   display:flex;
-  flex-wrap:wrap;
+  flex-direction:column; /* mobile-first: cards em coluna */
   gap:15px;
   margin-bottom:20px;
 }
 
 .card {
-  flex:1 1 250px;
   background:#1e293b;
   padding:20px;
   border-radius:10px;
   text-align:center;
-  min-width:200px;
 }
 
 .card h3 {
   margin:10px 0;
-  font-size:16px;
+  font-size:18px;
   color:#94a3b8;
 }
 
 .card p {
-  font-size:22px;
+  font-size:26px;
   font-weight:bold;
 }
 
 button {
-  padding:12px 20px;
+  padding:14px 20px;
   margin-top:10px;
   background:#22c55e;
   border:none;
   color:white;
   cursor:pointer;
   border-radius:6px;
-  font-size:16px;
+  font-size:18px;
   width:100%;
   box-sizing:border-box;
 }
 
 .progress {
   background:#334155;
-  height:20px;
+  height:22px;
   border-radius:10px;
   margin-top:10px;
 }
@@ -99,9 +98,9 @@ table {
 
 th, td {
   border:1px solid #334155;
-  padding:10px;
+  padding:12px;
   text-align:center;
-  font-size:16px;
+  font-size:18px;
   white-space:nowrap;
 }
 
@@ -111,12 +110,12 @@ th {
 
 input {
   width:100%;
-  padding:8px;
+  padding:10px;
   background:#0f172a;
   color:white;
   border:1px solid #334155;
   box-sizing:border-box;
-  font-size:16px;
+  font-size:18px;
 }
 
 canvas {
@@ -127,14 +126,10 @@ canvas {
   height:auto !important;
 }
 
-/* ================= RESPONSIVO ================= */
-@media screen and (max-width: 700px) {
-  header { font-size:20px; padding:15px; }
-  .card p { font-size:20px; }
-  th, td { font-size:14px; padding:8px; }
-  input { font-size:14px; }
-  button { font-size:14px; padding:10px; }
-  .cards { flex-direction:column; }
+/* ================= TABLET/DESKTOP ================= */
+@media screen and (min-width: 700px) {
+  .cards { flex-direction:row; flex-wrap:wrap; }
+  .card { flex:1 1 250px; min-width:200px; }
 }
 </style>
 </head>
@@ -251,5 +246,3 @@ carregarDados();
 
 </body>
 </html>
-
-
