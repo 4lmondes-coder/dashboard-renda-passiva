@@ -92,8 +92,9 @@ table {
   width:100%;
   border-collapse:collapse;
   margin-top:20px;
-  display:block;
-  overflow-x:auto;
+  display:block;          /* permite scroll horizontal em telas pequenas */
+  overflow-x:auto;        /* scroll só se necessário */
+  word-wrap: break-word;  /* quebra palavras longas */
 }
 
 th, td {
@@ -101,7 +102,8 @@ th, td {
   padding:12px;
   text-align:center;
   font-size:18px;
-  white-space:nowrap;
+  white-space: normal;   /* permite quebra de linha automática */
+  word-break: break-word;
 }
 
 th {
@@ -174,6 +176,7 @@ canvas {
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 let chart;
+
 function adicionarLinha(dados=["",0,0,0]){
   let tbody=document.querySelector("#tabela tbody");
   let row=tbody.insertRow();
